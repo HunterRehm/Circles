@@ -5,7 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Trends Analyzer</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <!-- ... rest of your head content ... -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+        }
+        .search-container {
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #loading {
+            display: none;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -17,6 +50,63 @@
         <div id="loading">Searching... This may take a few moments.</div>
         <div id="plot"></div>
     </div>
-    <script src="/js/main.js"></script>
+    <script>
+        function searchJobs() {
+            const keyword = document.getElementById('keyword').value;
+            if (!keyword) {
+                alert('Please enter a search term');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('plot').innerHTML = '';
+
+            fetch('/.netlify/functions/app/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ keyword: keyword })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+
+                const trace = {
+                    x: data.dates,
+                    y: data.counts,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: {
+                        color: '#4CAF50',
+                        width: 2
+                    },
+                    marker: {
+                        size: 8,
+                        color: '#4CAF50'
+                    }
+                };
+
+                const layout = {
+                    title: `Search Results for "${keyword}" Over Last 5 Days`,
+                    xaxis: {
+                        title: 'Date',
+                        tickangle: -45
+                    },
+                    yaxis: {
+                        title: 'Number of Results'
+                    },
+                    hovermode: 'closest'
+                };
+
+                Plotly.newPlot('plot', [trace], layout);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('An error occurred while searching');
+            });
+        }
+    </script>
 </body>
 </html> 
