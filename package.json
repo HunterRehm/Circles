@@ -1,0 +1,8 @@
+{
+  "name": "job-trends-analyzer",
+  "version": "1.0.0",
+  "description": "Job trends analyzer using Google search",
+  "scripts": {
+    "build": "pip install -r requirements.txt"
+  }
+} 
