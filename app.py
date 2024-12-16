@@ -12,6 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+#test
 
 def search_google_for_date(keyword, date):
     logger.debug(f"Searching Google for keyword: {keyword}, date: {date}")
