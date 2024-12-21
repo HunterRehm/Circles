@@ -94,20 +94,32 @@ try:
                 fig.update_layout(
                     height=120,
                     width=240,
-                    margin=dict(l=0, r=0, t=0, b=0),
+                    margin=dict(l=30, r=10, t=20, b=20),
                     paper_bgcolor='rgba(0,0,0,0)',
                     plot_bgcolor='rgba(0,0,0,0)',
                     showlegend=False,
                     xaxis=dict(
-                        showgrid=False, 
-                        showticklabels=False, 
-                        showline=False,
-                        range=[2018, 2023]  # Fixed x-axis range
+                        showgrid=True,
+                        showticklabels=True,
+                        showline=True,
+                        range=[2018, 2023],
+                        gridcolor='rgba(128,128,128,0.1)',
+                        linecolor='rgba(128,128,128,0.3)'
                     ),
                     yaxis=dict(
-                        showgrid=False, 
-                        showticklabels=False, 
-                        showline=False
+                        showgrid=True,
+                        showticklabels=True,
+                        showline=True,
+                        tickformat='$,.0f',
+                        gridcolor='rgba(128,128,128,0.1)',
+                        linecolor='rgba(128,128,128,0.3)',
+                        title=dict(
+                            text='Annual Wage',
+                            standoff=5
+                        )
+                    ),
+                    font=dict(
+                        size=8
                     )
                 )
                 
