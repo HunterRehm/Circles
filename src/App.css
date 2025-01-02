@@ -1,0 +1,18 @@
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+.plot-container {
+  display: inline-block;
+  margin: 10px;
+}
+
+.trend-info {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+h1 {
+  color: #1f77b4;
+} 
