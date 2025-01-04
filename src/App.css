@@ -467,6 +467,20 @@ select {
     .sidebar.active + .sidebar-overlay {
         display: block;
     }
+
+    .sidebar.active ~ .main-content .view-details {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    /* Prevent interaction with main content when sidebar is open */
+    .sidebar.active ~ .main-content {
+        pointer-events: all;  /* Allow clicks to close sidebar */
+    }
+
+    .sidebar.active ~ .main-content .plot-container {
+        pointer-events: none;  /* Disable plot interaction when sidebar is open */
+    }
 }
 
 /* Small mobile devices */
@@ -548,4 +562,51 @@ select {
     color: #666;
     cursor: pointer;
     padding: 5px;
+}
+
+/* Add notification styles */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+}
+
+.notification {
+    background: #1f77b4;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: notification 2s ease-in-out;
+}
+
+@keyframes notification {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    15% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    85% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Adjust for mobile */
+@media (max-width: 1024px) {
+    .notification-container {
+        top: 80px;  /* Below the header */
+    }
 } 

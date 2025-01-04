@@ -440,6 +440,12 @@ class WageVisualization {
     }
 
     showDetailView(occupation) {
+        // Don't show detail view if sidebar is active
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar.classList.contains('active')) {
+            return;
+        }
+
         this.selectedGraph = occupation;
         document.getElementById('gridView').classList.add('hidden');
         document.getElementById('detailView').classList.remove('hidden');
@@ -485,6 +491,19 @@ class WageVisualization {
             
             occupationList.appendChild(item);
         });
+    }
+
+    showNotification(message) {
+        const container = document.querySelector('.notification-container');
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        container.appendChild(notification);
+
+        // Remove notification after animation ends
+        setTimeout(() => {
+            notification.remove();
+        }, 2000);
     }
 
     toggleOccupation(occupation, element) {
@@ -536,6 +555,9 @@ class WageVisualization {
             this.selectedOccupations.add(occupation);
             this.occupationPositions.set(occupation, this.nextPosition);
             element.classList.add('selected');
+            
+            // Show notification
+            this.showNotification(`Added "${occupation}" to main page!`);
             
             // Update next position (cycle through 0-8)
             this.nextPosition = (this.nextPosition + 1) % 9;

@@ -13,7 +13,18 @@ function App() {
         
         mainContent.addEventListener('click', (e) => {
             if (sidebar.classList.contains('active')) {
+                // Prevent any click events while sidebar is open
+                e.preventDefault();
+                e.stopPropagation();
                 sidebar.classList.remove('active');
+                
+                // Ensure we're on the grid view
+                const detailView = document.getElementById('detailView');
+                const gridView = document.getElementById('gridView');
+                if (!detailView.classList.contains('hidden')) {
+                    detailView.classList.add('hidden');
+                    gridView.classList.remove('hidden');
+                }
             }
         });
     }, []);
@@ -30,6 +41,7 @@ function App() {
 
     return (
         <div className="container">
+            <div className="notification-container"></div>
             <button className="menu-toggle" onClick={toggleSidebar}>
                 ☰
             </button>
