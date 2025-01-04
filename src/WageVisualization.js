@@ -414,7 +414,8 @@ class WageVisualization {
                         if (plot && plot.trace && plot.layout) {
                             Plotly.newPlot(plotContainer, [plot.trace], plot.layout, {
                                 displayModeBar: false,
-                                staticPlot: false,
+                                staticPlot: true,
+                                responsive: true
                             })
                                 .then(() => {
                                     const button = document.createElement('button');
@@ -447,7 +448,8 @@ class WageVisualization {
         const plot = this.createPlot(occupation, true);
         Plotly.newPlot('detailPlot', [plot.trace], plot.layout, {
             displayModeBar: false,
-            staticPlot: false,
+            staticPlot: window.innerWidth <= 1024,
+            responsive: true
         });
     }
 

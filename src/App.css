@@ -319,9 +319,45 @@ select {
     }
 
     .grid-container {
-        grid-template-columns: 1fr;  /* Single column for all mobile sizes */
+        grid-template-columns: 1fr;
         gap: 15px;
-        padding: 10px;
+        padding: 15px;
+        max-width: 500px;  /* Limit maximum width */
+        margin: 0 auto;    /* Center container */
+    }
+
+    .plot-container {
+        min-height: 250px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Center plotly graphs */
+    .js-plotly-plot {
+        width: 100% !important;
+        margin: 0 auto !important;
+    }
+
+    /* Ensure the plot takes up full width of container */
+    .plot-container > div {
+        width: 100% !important;
+    }
+
+    /* Center detail view content */
+    .detail-view {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #detailPlot {
+        width: 100% !important;
+        max-width: 500px;
+        margin: 0 auto;
     }
 
     /* Menu button styles */
@@ -427,6 +463,14 @@ select {
 
     .occupation-item {
         font-size: 13px;
+    }
+
+    .grid-container {
+        padding: 10px;
+    }
+
+    .plot-container {
+        min-height: 200px;
     }
 }
 
