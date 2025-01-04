@@ -320,9 +320,9 @@ select {
         margin-left: 0;
     }
 
-    /* Show menu button */
+    /* Update menu button styles */
     .menu-toggle {
-        display: block;
+        display: block !important; /* Force display */
         position: fixed;
         top: 10px;
         left: 10px;
@@ -341,9 +341,13 @@ select {
     }
 }
 
-/* Hide menu controls on desktop */
+/* Update desktop styles */
 @media (min-width: 1025px) {
-    .menu-toggle, .close-menu {
+    .menu-toggle {
+        display: none !important;
+    }
+
+    .close-menu {
         display: none;
     }
 
@@ -379,11 +383,6 @@ select {
         flex-direction: column;
         gap: 10px;
     }
-}
-
-/* Hide menu button on desktop */
-.menu-toggle {
-    display: none;
 }
 
 /* Add close button for mobile */
