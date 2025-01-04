@@ -245,6 +245,19 @@ class WageVisualization {
     getPlotLayout(occupation, isDetailView, isInflationAdjusted) {
         const titleSuffix = isInflationAdjusted ? ' (Inflation Adjusted)' : '';
         
+        // Get current viewport width
+        const viewportWidth = window.innerWidth;
+        const isMobile = viewportWidth <= 600;
+        
+        // Adjust sizes based on viewport
+        const plotWidth = isDetailView ? 
+            (viewportWidth - 40) : 
+            (isMobile ? viewportWidth - 60 : 220);
+        
+        const plotHeight = isDetailView ? 
+            (window.innerHeight - 150) : 
+            (isMobile ? 180 : 200);
+
         // Format long titles to wrap onto multiple lines if needed
         const formatTitle = (title) => {
             if (!isDetailView) {
@@ -268,12 +281,12 @@ class WageVisualization {
         };
         
         return {
-            height: isDetailView ? window.innerHeight - 150 : 200,  // Adjust height for detail view
-            width: isDetailView ? window.innerWidth - 100 : 220,    // Adjust width for detail view
-            autosize: true,  // Changed to true for better responsiveness
+            height: plotHeight,
+            width: plotWidth,
+            autosize: true,
             margin: isDetailView ? 
-                {l: 80, r: 40, t: 60, b: 60} :  // Increased margins for detail view
-                {l: 35, r: 15, t: 80, b: 25},
+                {l: 80, r: 40, t: 60, b: 60} : 
+                {l: 35, r: 15, t: isMobile ? 60 : 80, b: 25},
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             showlegend: false,

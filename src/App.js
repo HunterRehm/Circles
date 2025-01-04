@@ -8,8 +8,17 @@ function App() {
         const visualization = new WageVisualization();
     }, []);
 
+    const toggleSidebar = () => {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+    };
+
     return (
         <div className="container">
+            <button className="menu-toggle" onClick={toggleSidebar}>
+                ☰ Menu
+            </button>
+            
             <h1>Wisconsin Wage Trends (2017-2023)</h1>
             
             <div className="sidebar">
