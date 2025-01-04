@@ -69,6 +69,8 @@ class WageVisualization {
         console.log('Starting processOccupations...');
         const occupationTrends = [];
         const allOccupations = [...new Set(this.data.map(d => d.OCC_TITLE))];
+        const isMobile = window.innerWidth <= 1024;
+        
         console.log('Unique occupations found:', allOccupations.length);
 
         for (const occupation of allOccupations) {
@@ -95,25 +97,37 @@ class WageVisualization {
             increasing.sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange));
             decreasing.sort((a, b) => Math.abs(b.percentChange) - Math.abs(a.percentChange));
 
-            const defaultOccupations = [
-                ...increasing.slice(0, 5).map(t => t.occupation),
-                ...decreasing.slice(0, 4).map(t => t.occupation)
-            ];
-
-            // Add default occupations to the Set and assign positions
-            defaultOccupations.forEach((occ, index) => {
-                this.selectedOccupations.add(occ);
-                this.occupationPositions.set(occ, index);
-            });
-            this.nextPosition = defaultOccupations.length % 9;
-            
-            // Update the UI
-            defaultOccupations.forEach(occ => {
-                const element = document.querySelector(`.occupation-item[data-occupation="${occ}"]`);
+            if (isMobile) {
+                // On mobile, only show the top increasing occupation
+                const defaultOccupation = increasing[0].occupation;
+                this.selectedOccupations.add(defaultOccupation);
+                this.occupationPositions.set(defaultOccupation, 0);
+                
+                // Update the UI to show selected occupation
+                const element = document.querySelector(`.occupation-item[data-occupation="${defaultOccupation}"]`);
                 if (element) {
                     element.classList.add('selected');
                 }
-            });
+            } else {
+                // Desktop behavior remains the same
+                const defaultOccupations = [
+                    ...increasing.slice(0, 5).map(t => t.occupation),
+                    ...decreasing.slice(0, 4).map(t => t.occupation)
+                ];
+
+                defaultOccupations.forEach((occ, index) => {
+                    this.selectedOccupations.add(occ);
+                    this.occupationPositions.set(occ, index);
+                });
+                this.nextPosition = defaultOccupations.length % 9;
+                
+                defaultOccupations.forEach(occ => {
+                    const element = document.querySelector(`.occupation-item[data-occupation="${occ}"]`);
+                    if (element) {
+                        element.classList.add('selected');
+                    }
+                });
+            }
         }
     }
 
@@ -382,12 +396,25 @@ class WageVisualization {
         }
         container.innerHTML = '';
 
+        // If we have no selections, show default occupations
+        if (this.selectedOccupations.size === 0) {
+            this.processOccupations();
+        }
+
         if (isMobile) {
             // Mobile: Show single plot
             const plotContainer = document.createElement('div');
             plotContainer.className = 'plot-container';
             
-            // Only show the first selected occupation or empty message
+            // Ensure only one occupation is selected on mobile
+            if (this.selectedOccupations.size > 1) {
+                const firstOccupation = Array.from(this.selectedOccupations)[0];
+                this.selectedOccupations.clear();
+                this.selectedOccupations.add(firstOccupation);
+                this.occupationPositions.clear();
+                this.occupationPositions.set(firstOccupation, 0);
+            }
+            
             if (this.selectedOccupations.size === 0) {
                 plotContainer.innerHTML = '<div class="empty-plot">Select an occupation from the menu to view its trend</div>';
             } else {
@@ -407,15 +434,6 @@ class WageVisualization {
                 }
             }
             container.appendChild(plotContainer);
-
-            // Clear any additional selections on mobile
-            if (this.selectedOccupations.size > 1) {
-                const firstOccupation = Array.from(this.selectedOccupations)[0];
-                this.selectedOccupations.clear();
-                this.selectedOccupations.add(firstOccupation);
-                this.occupationPositions.clear();
-                this.occupationPositions.set(firstOccupation, 0);
-            }
         } else {
             // Desktop: Keep existing grid view code
             // Create a fixed 3x3 grid
