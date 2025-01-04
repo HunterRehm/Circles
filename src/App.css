@@ -332,12 +332,24 @@ select {
     .plot-container {
         min-height: 250px;
         width: 100%;
-        margin: 0 auto;
+        margin: 0 auto 30px;  /* Add bottom margin */
         display: flex;
         flex-direction: column;
         align-items: center;
-        box-sizing: border-box;  /* Include padding in width calculation */
+        box-sizing: border-box;
         padding: 15px;
+    }
+
+    .view-details {
+        margin-top: 15px;  /* Increase top margin */
+        margin-bottom: 5px;  /* Add bottom margin */
+        width: 100%;        /* Make button full width */
+        padding: 8px;       /* Slightly larger padding */
+    }
+
+    /* Last plot container doesn't need bottom margin */
+    .plot-container:last-child {
+        margin-bottom: 0;
     }
 
     /* Center plotly graphs */
@@ -501,7 +513,14 @@ select {
 /* Small mobile devices */
 @media (max-width: 480px) {
     .plot-container {
-        min-height: 200px;  /* Slightly smaller for very small screens */
+        margin: 0 auto 20px;  /* Slightly less margin for smaller screens */
+        min-height: 200px;
+        padding: 10px;
+    }
+
+    .view-details {
+        margin-top: 12px;
+        margin-bottom: 3px;
     }
 
     h1 {
