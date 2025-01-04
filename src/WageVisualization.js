@@ -408,7 +408,10 @@ class WageVisualization {
                     } else {
                         const plot = this.createPlot(occupation);
                         if (plot && plot.trace && plot.layout) {
-                            Plotly.newPlot(plotContainer, [plot.trace], plot.layout)
+                            Plotly.newPlot(plotContainer, [plot.trace], plot.layout, {
+                                displayModeBar: false,
+                                staticPlot: false,
+                            })
                                 .then(() => {
                                     const button = document.createElement('button');
                                     button.className = 'view-details';
@@ -438,7 +441,10 @@ class WageVisualization {
         document.body.classList.add('detail-view-active');
         
         const plot = this.createPlot(occupation, true);
-        Plotly.newPlot('detailPlot', [plot.trace], plot.layout);
+        Plotly.newPlot('detailPlot', [plot.trace], plot.layout, {
+            displayModeBar: false,
+            staticPlot: false,
+        });
     }
 
     setupOccupationList() {
