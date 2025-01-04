@@ -324,8 +324,9 @@ select {
         grid-template-columns: 1fr;
         gap: 15px;
         padding: 15px;
-        max-width: 500px;  /* Limit maximum width */
-        margin: 0 auto;    /* Center container */
+        max-width: 500px;
+        margin: 0 auto;
+        width: calc(100% - 30px);  /* Account for padding */
     }
 
     .plot-container {
@@ -335,17 +336,31 @@ select {
         display: flex;
         flex-direction: column;
         align-items: center;
+        box-sizing: border-box;  /* Include padding in width calculation */
+        padding: 15px;
     }
 
     /* Center plotly graphs */
     .js-plotly-plot {
         width: 100% !important;
         margin: 0 auto !important;
+        display: block !important;
     }
 
     /* Ensure the plot takes up full width of container */
     .plot-container > div {
         width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* Adjust main content padding */
+    .main-content {
+        margin-left: 0;
+        padding: 0;  /* Remove padding from main content */
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     /* Center detail view content */
@@ -498,10 +513,12 @@ select {
     }
 
     .grid-container {
+        width: calc(100% - 20px);  /* Slightly smaller padding */
         padding: 10px;
     }
 
     .plot-container {
+        padding: 10px;
         min-height: 200px;
     }
 }
