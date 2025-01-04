@@ -507,65 +507,87 @@ class WageVisualization {
     }
 
     toggleOccupation(occupation, element) {
-        if (this.selectedOccupations.has(occupation)) {
-            // Remove the occupation if it's already selected
-            this.selectedOccupations.delete(occupation);
-            const removedPosition = this.occupationPositions.get(occupation);
-            this.occupationPositions.delete(occupation);
-            element.classList.remove('selected');
-            
-            // Update nextPosition to fill this gap next time
-            if (removedPosition !== undefined) {
-                this.nextPosition = removedPosition;
-            }
-        } else {
-            // If we already have 9 selections, remove the occupation at nextPosition
-            if (this.selectedOccupations.size >= 9) {
-                // Find occupation at the position we want to replace
-                let occupationToRemove;
-                for (const [occ, pos] of this.occupationPositions.entries()) {
-                    if (pos === this.nextPosition) {
-                        occupationToRemove = occ;
-                        break;
-                    }
-                }
+        const isMobile = window.innerWidth <= 1024;
 
-                if (occupationToRemove) {
-                    this.selectedOccupations.delete(occupationToRemove);
-                    this.occupationPositions.delete(occupationToRemove);
-                    
-                    // Remove selected class from the old element
-                    const oldElement = document.querySelector(`.occupation-item[data-occupation="${occupationToRemove}"]`);
-                    if (oldElement) {
-                        oldElement.classList.remove('selected');
-                    }
-                }
-            } else {
-                // Find the first empty position if there are gaps
-                const usedPositions = new Set(this.occupationPositions.values());
-                for (let i = 0; i < 9; i++) {
-                    if (!usedPositions.has(i)) {
-                        this.nextPosition = i;
-                        break;
-                    }
-                }
-            }
+        if (isMobile) {
+            // Mobile behavior: single selection
+            this.selectedOccupations.clear();
+            this.occupationPositions.clear();
+            document.querySelectorAll('.occupation-item').forEach(item => {
+                item.classList.remove('selected');
+            });
             
-            // Add the new occupation at the next position
             this.selectedOccupations.add(occupation);
-            this.occupationPositions.set(occupation, this.nextPosition);
+            this.occupationPositions.set(occupation, 0);
             element.classList.add('selected');
             
+            // Close sidebar
+            document.querySelector('.sidebar').classList.remove('active');
+            
             // Show notification
-            this.showNotification(`Added "${occupation}" to main page!`);
-            
-            // Update next position (cycle through 0-8)
-            this.nextPosition = (this.nextPosition + 1) % 9;
-            
-            // Find next available position
-            const usedPositions = new Set(this.occupationPositions.values());
-            while (usedPositions.has(this.nextPosition) && usedPositions.size < 9) {
+            this.showNotification(`Showing "${occupation}"`);
+        } else {
+            // Desktop behavior (keep existing code)
+            if (this.selectedOccupations.has(occupation)) {
+                // Remove the occupation if it's already selected
+                this.selectedOccupations.delete(occupation);
+                const removedPosition = this.occupationPositions.get(occupation);
+                this.occupationPositions.delete(occupation);
+                element.classList.remove('selected');
+                
+                // Update nextPosition to fill this gap next time
+                if (removedPosition !== undefined) {
+                    this.nextPosition = removedPosition;
+                }
+            } else {
+                // If we already have 9 selections, remove the occupation at nextPosition
+                if (this.selectedOccupations.size >= 9) {
+                    // Find occupation at the position we want to replace
+                    let occupationToRemove;
+                    for (const [occ, pos] of this.occupationPositions.entries()) {
+                        if (pos === this.nextPosition) {
+                            occupationToRemove = occ;
+                            break;
+                        }
+                    }
+
+                    if (occupationToRemove) {
+                        this.selectedOccupations.delete(occupationToRemove);
+                        this.occupationPositions.delete(occupationToRemove);
+                        
+                        // Remove selected class from the old element
+                        const oldElement = document.querySelector(`.occupation-item[data-occupation="${occupationToRemove}"]`);
+                        if (oldElement) {
+                            oldElement.classList.remove('selected');
+                        }
+                    }
+                } else {
+                    // Find the first empty position if there are gaps
+                    const usedPositions = new Set(this.occupationPositions.values());
+                    for (let i = 0; i < 9; i++) {
+                        if (!usedPositions.has(i)) {
+                            this.nextPosition = i;
+                            break;
+                        }
+                    }
+                }
+                
+                // Add the new occupation at the next position
+                this.selectedOccupations.add(occupation);
+                this.occupationPositions.set(occupation, this.nextPosition);
+                element.classList.add('selected');
+                
+                // Show notification
+                this.showNotification(`Added "${occupation}" to main page!`);
+                
+                // Update next position (cycle through 0-8)
                 this.nextPosition = (this.nextPosition + 1) % 9;
+                
+                // Find next available position
+                const usedPositions = new Set(this.occupationPositions.values());
+                while (usedPositions.has(this.nextPosition) && usedPositions.size < 9) {
+                    this.nextPosition = (this.nextPosition + 1) % 9;
+                }
             }
         }
         this.renderGridView();

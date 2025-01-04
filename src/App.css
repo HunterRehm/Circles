@@ -322,118 +322,44 @@ select {
 
     .grid-container {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 0;
         padding: 15px;
         max-width: 500px;
         margin: 0 auto;
-        width: calc(100% - 30px);  /* Account for padding */
+        width: calc(100% - 30px);
     }
 
     .plot-container {
-        min-height: 350px;  /* Increased height to accommodate button */
+        min-height: 350px;
         width: 100%;
-        margin: 0 auto 20px;  /* Reduced margin */
+        margin: 0 auto;
         padding: 15px;
         background: white;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-        position: relative;
     }
 
-    /* Ensure plot doesn't take up all the space */
-    .js-plotly-plot {
-        width: 100% !important;
-        height: 280px !important;  /* Fixed height for plot */
-        margin: 0 auto !important;
-    }
-
-    /* Style the view details button */
+    /* Hide view details button on mobile */
     .view-details {
-        position: relative;  /* Changed from absolute */
-        width: 90%;
-        margin: 15px auto 0;  /* Add margin to top */
-        padding: 10px;
-        background: #f0f0f0;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
+        display: none;
     }
 
-    /* Remove any conflicting styles */
-    .plot-container:last-child {
-        margin-bottom: 20px;
-    }
-
-    /* Ensure grid container has proper spacing */
-    .grid-container {
-        padding: 10px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Last plot container needs extra padding to account for button */
-    .plot-container:last-child {
-        margin-bottom: 40px;
-    }
-
-    /* Ensure plots don't overflow their containers */
+    /* Adjust plot size for mobile */
     .js-plotly-plot {
         width: 100% !important;
-        margin: 0 auto !important;
-        display: block !important;
-        max-height: 250px;  /* Limit plot height */
+        height: 350px !important;
     }
 
-    .view-details {
-        margin-top: 15px;  /* Increase top margin */
-        margin-bottom: 5px;  /* Add bottom margin */
-        width: 100%;        /* Make button full width */
-        padding: 8px;       /* Slightly larger padding */
-    }
-
-    /* Last plot container doesn't need bottom margin */
-    .plot-container:last-child {
-        margin-bottom: 0;
-    }
-
-    /* Center plotly graphs */
-    .js-plotly-plot {
-        width: 100% !important;
-        margin: 0 auto !important;
-        display: block !important;
-    }
-
-    /* Ensure the plot takes up full width of container */
-    .plot-container > div {
-        width: 100% !important;
-        margin: 0 !important;
-    }
-
-    /* Adjust main content padding */
-    .main-content {
-        margin-left: 0;
-        padding: 0;  /* Remove padding from main content */
-        width: 100%;
+    /* Show message when no occupation is selected */
+    .empty-plot {
+        height: 350px;
         display: flex;
-        flex-direction: column;
         align-items: center;
-    }
-
-    /* Center detail view content */
-    .detail-view {
-        padding: 15px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    #detailPlot {
-        width: 100% !important;
-        max-width: 500px;
-        margin: 0 auto;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-size: 16px;
     }
 
     /* Menu button styles */
@@ -462,19 +388,6 @@ select {
         margin-top: 70px;  /* Increased space for menu button */
         font-size: 20px;
         padding: 0 50px;  /* Space for menu button */
-    }
-
-    /* Plot container adjustments */
-    .plot-container {
-        min-height: 250px;  /* Taller plots for mobile */
-        margin: 0 auto;
-        width: 100%;
-        max-width: 500px;  /* Maximum width on mobile */
-    }
-
-    /* Adjust plot sizes */
-    .js-plotly-plot {
-        width: 100% !important;
     }
 
     /* Improve mobile sidebar */
