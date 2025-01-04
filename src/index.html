@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wisconsin Wage Trends (2017-2023)</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Wisconsin Wage Trends (2017-2023)</h1>
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="search-section">
+                <h2>Search for an Occupation</h2>
+                <select id="occupationSearch">
+                    <option value="">Select an occupation</option>
+                </select>
+            </div>
+            <div class="inflation-toggle">
+                <input type="checkbox" id="inflationToggle">
+                <label for="inflationToggle">Adjust for inflation</label>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <div id="gridView" class="grid-container">
+                <!-- Grid plots will be inserted here -->
+            </div>
+            
+            <div id="detailView" class="detail-view hidden">
+                <div class="detail-header">
+                    <button id="backButton">← Back to All Occupations</button>
+                    <div class="inflation-toggle-detail">
+                        <input type="checkbox" id="inflationToggleDetail">
+                        <label for="inflationToggleDetail">Adjust for inflation</label>
+                    </div>
+                </div>
+                <div id="detailPlot"></div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html> 

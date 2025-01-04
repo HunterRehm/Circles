@@ -1,61 +1,55 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Plot from 'react-plotly.js';
+import WageVisualization from './WageVisualization';
 import './App.css';
 
 function App() {
-  // Mock data for one occupation
-  const sampleData = {
-    years: [2019, 2020, 2021, 2022, 2023],
-    wages: [50000, 52000, 54000, 56000, 58000],
-    occupation: "Software Developer"
-  };
-
-  const createPlot = () => {
-    const isIncreasing = sampleData.wages[sampleData.wages.length - 1] > sampleData.wages[0];
-    const percentChange = (
-      ((sampleData.wages[sampleData.wages.length - 1] - sampleData.wages[0]) / 
-      sampleData.wages[0]) * 100
-    ).toFixed(1);
+    useEffect(() => {
+        const visualization = new WageVisualization();
+    }, []);
 
     return (
-      <div className="plot-container">
-        <Plot
-          data={[{
-            x: sampleData.years,
-            y: sampleData.wages,
-            type: 'scatter',
-            mode: 'lines+markers',
-            line: { color: isIncreasing ? 'green' : 'red', width: 2 },
-            marker: { size: 4 }
-          }]}
-          layout={{
-            height: 300,
-            width: 400,
-            title: sampleData.occupation,
-            xaxis: {
-              range: [2018, 2023],
-              title: 'Year'
-            },
-            yaxis: {
-              title: 'Annual Wage ($)',
-              tickformat: '$,.0f'
-            }
-          }}
-          config={{ displayModeBar: false }}
-        />
-        <div className="trend-info" style={{ color: isIncreasing ? 'green' : 'red' }}>
-          {percentChange}% change from 2019 to 2023
-        </div>
-      </div>
-    );
-  };
+        <div className="container">
+            <h1>Wisconsin Wage Trends (2017-2023)</h1>
+            
+            <div className="sidebar">
+                <div className="search-section">
+                    <h2>Search for an Occupation</h2>
+                    <input 
+                        type="text"
+                        id="occupationSearch"
+                        placeholder="Type to search occupations..."
+                    />
+                    <div id="searchResults" className="search-results"></div>
+                </div>
+                <div className="inflation-toggle">
+                    <input type="checkbox" id="inflationToggle" />
+                    <label htmlFor="inflationToggle">Adjust for inflation</label>
+                </div>
+                <div className="occupation-list">
+                    <h2>Available Occupations</h2>
+                    <div id="occupationList" className="occupation-grid"></div>
+                </div>
+            </div>
 
-  return (
-    <div className="App">
-      <h1>Wisconsin Wage Trends</h1>
-      {createPlot()}
-    </div>
-  );
+            <div className="main-content">
+                <div id="gridView" className="grid-container">
+                    {/* Grid plots will be inserted here */}
+                </div>
+                
+                <div id="detailView" className="detail-view hidden">
+                    <div className="detail-header">
+                        <button id="backButton">← Back to All Occupations</button>
+                        <div className="inflation-toggle-detail">
+                            <input type="checkbox" id="inflationToggleDetail" />
+                            <label htmlFor="inflationToggleDetail">Adjust for inflation</label>
+                        </div>
+                    </div>
+                    <div id="detailPlot"></div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default App; 

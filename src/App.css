@@ -1,18 +1,304 @@
-.App {
-  text-align: center;
-  padding: 20px;
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.plot-container {
-  display: inline-block;
-  margin: 10px;
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
-.trend-info {
-  margin-top: 10px;
-  font-size: 14px;
+.main-content {
+    display: flex;
+    flex: 1;
+    margin-left: 350px;  /* Match new sidebar width */
+    padding: 20px;
+    flex-direction: column;
 }
 
 h1 {
-  color: #1f77b4;
+    text-align: center;
+    color: #1f77b4;
+    margin: 20px 0;
+    padding-left: 350px;  /* Match new sidebar width */
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 350px;  /* Increased from 300px */
+    padding: 20px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    background: white;
+    border-right: 1px solid #eee;
+    overflow-y: auto;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+.search-section h2 {
+    color: #1f77b4;
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+}
+
+/* Grid layout */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 30px;
+    flex: 1;
+    min-height: 0;  /* Allow grid to shrink */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.plot-container {
+    min-height: 200px;
+    position: relative;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.plot-container .js-plotly-plot {
+    margin: 0 auto;
+}
+
+.plot-title {
+    text-align: center;
+    font-size: 12px;
+    margin-top: -15px;
+    padding: 0 5px;
+}
+
+.view-details {
+    display: block;
+    width: calc(100% - 30px);
+    padding: 5px;
+    margin: 10px auto 0;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Detail view */
+.detail-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: white;
+    z-index: 2000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.detail-view.hidden {
+    display: none;
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+#backButton {
+    padding: 8px 16px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 20px;
+    transition: background-color 0.2s;
+}
+
+#backButton:hover {
+    background: #e0e0e0;
+}
+
+/* Inflation toggle */
+.inflation-toggle {
+    margin-top: 20px;
+}
+
+/* Utility classes */
+.hidden {
+    display: none;
+}
+
+/* Add search styles */
+#occupationSearch {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+}
+
+.search-result {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result:hover {
+    background: #f5f5f5;
+}
+
+.search-result:last-child {
+    border-bottom: none;
+}
+
+.search-section {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+/* Occupation list styles */
+.occupation-list {
+    margin-top: 20px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.occupation-list h2 {
+    color: #1f77b4;
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.occupation-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;  /* Increased gap */
+    padding: 12px;
+    min-height: 100px;
+}
+
+.occupation-item {
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 10px;  /* Slightly increased padding */
+    font-size: 11px;  /* Slightly reduced font size */
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s;
+    border: 1px solid #ddd;
+    transition: all 0.2s ease-in-out;
+    word-wrap: break-word;  /* Ensure long words wrap */
+    min-height: 40px;  /* Ensure consistent height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.occupation-item:hover {
+    background: #e0e0e0;
+}
+
+.occupation-item.selected {
+    background: #1f77b4;
+    color: white;
+    border-color: #1f77b4;
+}
+
+/* Add styles for empty plot containers */
+.empty-plot {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 14px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 2px dashed #ddd;
+}
+
+/* Add styles for invalid data */
+.occupation-item.invalid-data {
+    background: #e0e0e0;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ccc;
+}
+
+.occupation-item.invalid-data:hover {
+    background: #e0e0e0;
+}
+
+.invalid-plot {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 14px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Add styles for no-match message */
+.no-match-message {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    background: #f5f5f5;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+/* Update sidebar for detail view */
+.detail-view-active .sidebar {
+    display: none;
+}
+
+.detail-view-active .main-content {
+    margin-left: 0;
 } 

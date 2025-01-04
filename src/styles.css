@@ -1,0 +1,109 @@
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #1f77b4;
+    margin-bottom: 20px;
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    padding: 20px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: white;
+    border-right: 1px solid #eee;
+}
+
+.search-section h2 {
+    color: #1f77b4;
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+}
+
+/* Grid layout */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+    margin-left: 270px;
+}
+
+.plot-container {
+    position: relative;
+}
+
+.plot-title {
+    text-align: center;
+    font-size: 12px;
+    margin-top: -15px;
+    padding: 0 5px;
+}
+
+.view-details {
+    display: block;
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Detail view */
+.detail-view {
+    margin-left: 270px;
+    padding: 20px;
+}
+
+.detail-view.hidden {
+    display: none;
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#backButton {
+    padding: 8px 16px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+/* Inflation toggle */
+.inflation-toggle {
+    margin-top: 20px;
+}
+
+/* Utility classes */
+.hidden {
+    display: none;
+} 
