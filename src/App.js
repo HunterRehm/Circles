@@ -13,15 +13,23 @@ function App() {
         sidebar.classList.toggle('active');
     };
 
+    const closeSidebar = () => {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.remove('active');
+    };
+
     return (
         <div className="container">
             <button className="menu-toggle" onClick={toggleSidebar}>
-                ☰ Menu
+                ☰
             </button>
             
             <h1>Wisconsin Wage Trends (2017-2023)</h1>
             
             <div className="sidebar">
+                <button className="close-menu" onClick={closeSidebar}>
+                    ×
+                </button>
                 <div className="search-section">
                     <h2>Search for an Occupation</h2>
                     <input 

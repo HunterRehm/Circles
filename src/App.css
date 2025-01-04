@@ -304,25 +304,23 @@ select {
         transform: translateX(-100%);
         width: 100%;
         max-width: 350px;
+        background: white;
     }
 
     .sidebar.active {
         transform: translateX(0);
+        box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+    }
+
+    .close-menu {
+        display: block;
     }
 
     .main-content {
         margin-left: 0;
     }
 
-    .grid-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    h1 {
-        padding-left: 0;
-    }
-
-    /* Add hamburger menu button */
+    /* Show menu button */
     .menu-toggle {
         display: block;
         position: fixed;
@@ -332,9 +330,25 @@ select {
         background: #1f77b4;
         color: white;
         border: none;
-        padding: 10px;
+        padding: 10px 15px;
         border-radius: 5px;
         cursor: pointer;
+        font-size: 20px;
+    }
+
+    h1 {
+        margin-top: 60px;  /* Make room for menu button */
+    }
+}
+
+/* Hide menu controls on desktop */
+@media (min-width: 1025px) {
+    .menu-toggle, .close-menu {
+        display: none;
+    }
+
+    .sidebar {
+        transform: none;
     }
 }
 
@@ -370,4 +384,18 @@ select {
 /* Hide menu button on desktop */
 .menu-toggle {
     display: none;
+}
+
+/* Add close button for mobile */
+.close-menu {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
 } 
