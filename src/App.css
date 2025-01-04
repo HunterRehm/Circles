@@ -321,8 +321,7 @@ select {
     }
 
     .grid-container {
-        grid-template-columns: 1fr;
-        gap: 0;
+        display: block;  /* Change from grid to block */
         padding: 15px;
         max-width: 500px;
         margin: 0 auto;
@@ -330,7 +329,7 @@ select {
     }
 
     .plot-container {
-        min-height: 350px;
+        min-height: calc(100vh - 150px);  /* Take up most of the viewport height */
         width: 100%;
         margin: 0 auto;
         padding: 15px;
@@ -347,12 +346,12 @@ select {
     /* Adjust plot size for mobile */
     .js-plotly-plot {
         width: 100% !important;
-        height: 350px !important;
+        height: calc(100vh - 200px) !important;  /* Adjust height to fit viewport */
     }
 
     /* Show message when no occupation is selected */
     .empty-plot {
-        height: 350px;
+        height: calc(100vh - 200px);
         display: flex;
         align-items: center;
         justify-content: center;

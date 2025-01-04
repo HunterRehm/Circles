@@ -374,68 +374,107 @@ class WageVisualization {
 
     renderGridView() {
         const container = document.getElementById('gridView');
+        const isMobile = window.innerWidth <= 1024;
+        
         if (!container) {
             console.error('Grid container not found');
             return;
         }
         container.innerHTML = '';
 
-        // Create a fixed 3x3 grid
-        const gridSize = 9;
-        
-        // If we have no selections, show default occupations
-        if (this.selectedOccupations.size === 0) {
-            this.processOccupations();
-        }
-
-        // Create array of 9 positions, fill with occupations or null
-        const gridOccupations = new Array(gridSize).fill(null);
-        
-        // Place occupations in their assigned positions
-        for (const [occupation, position] of this.occupationPositions.entries()) {
-            if (position < gridSize) {
-                gridOccupations[position] = occupation;
-            }
-        }
-
-        // Create all 9 grid cells
-        for (let i = 0; i < gridSize; i++) {
+        if (isMobile) {
+            // Mobile: Show single plot
             const plotContainer = document.createElement('div');
             plotContainer.className = 'plot-container';
             
-            const occupation = gridOccupations[i];
-            if (occupation) {
+            // Only show the first selected occupation or empty message
+            if (this.selectedOccupations.size === 0) {
+                plotContainer.innerHTML = '<div class="empty-plot">Select an occupation from the menu to view its trend</div>';
+            } else {
+                const occupation = Array.from(this.selectedOccupations)[0];
                 try {
-                    const occupationData = this.data.filter(d => d.OCC_TITLE === occupation);
-                    if (!this.hasCompleteData(occupationData)) {
-                        plotContainer.innerHTML = '<div class="invalid-plot">Insufficient data available for this occupation</div>';
-                    } else {
-                        const plot = this.createPlot(occupation);
-                        if (plot && plot.trace && plot.layout) {
-                            Plotly.newPlot(plotContainer, [plot.trace], plot.layout, {
-                                displayModeBar: false,
-                                staticPlot: true,
-                                responsive: true
-                            })
-                                .then(() => {
-                                    const button = document.createElement('button');
-                                    button.className = 'view-details';
-                                    button.textContent = 'View Details';
-                                    button.onclick = () => this.showDetailView(occupation);
-                                    plotContainer.appendChild(button);
-                                })
-                                .catch(err => console.error('Plot creation error:', err));
-                        }
+                    const plot = this.createPlot(occupation);
+                    if (plot && plot.trace && plot.layout) {
+                        Plotly.newPlot(plotContainer, [plot.trace], plot.layout, {
+                            displayModeBar: false,
+                            staticPlot: true,
+                            responsive: true
+                        });
                     }
                 } catch (error) {
                     console.error(`Error creating plot for ${occupation}:`, error);
                     plotContainer.innerHTML = '<div class="invalid-plot">Error displaying data</div>';
                 }
-            } else {
-                plotContainer.innerHTML = '<div class="empty-plot">Select an occupation</div>';
             }
-            
             container.appendChild(plotContainer);
+
+            // Clear any additional selections on mobile
+            if (this.selectedOccupations.size > 1) {
+                const firstOccupation = Array.from(this.selectedOccupations)[0];
+                this.selectedOccupations.clear();
+                this.selectedOccupations.add(firstOccupation);
+                this.occupationPositions.clear();
+                this.occupationPositions.set(firstOccupation, 0);
+            }
+        } else {
+            // Desktop: Keep existing grid view code
+            // Create a fixed 3x3 grid
+            const gridSize = 9;
+            
+            // If we have no selections, show default occupations
+            if (this.selectedOccupations.size === 0) {
+                this.processOccupations();
+            }
+
+            // Create array of 9 positions, fill with occupations or null
+            const gridOccupations = new Array(gridSize).fill(null);
+            
+            // Place occupations in their assigned positions
+            for (const [occupation, position] of this.occupationPositions.entries()) {
+                if (position < gridSize) {
+                    gridOccupations[position] = occupation;
+                }
+            }
+
+            // Create all 9 grid cells
+            for (let i = 0; i < gridSize; i++) {
+                const plotContainer = document.createElement('div');
+                plotContainer.className = 'plot-container';
+                
+                const occupation = gridOccupations[i];
+                if (occupation) {
+                    try {
+                        const occupationData = this.data.filter(d => d.OCC_TITLE === occupation);
+                        if (!this.hasCompleteData(occupationData)) {
+                            plotContainer.innerHTML = '<div class="invalid-plot">Insufficient data available for this occupation</div>';
+                        } else {
+                            const plot = this.createPlot(occupation);
+                            if (plot && plot.trace && plot.layout) {
+                                Plotly.newPlot(plotContainer, [plot.trace], plot.layout, {
+                                    displayModeBar: false,
+                                    staticPlot: true,
+                                    responsive: true
+                                })
+                                    .then(() => {
+                                        const button = document.createElement('button');
+                                        button.className = 'view-details';
+                                        button.textContent = 'View Details';
+                                        button.onclick = () => this.showDetailView(occupation);
+                                        plotContainer.appendChild(button);
+                                    })
+                                    .catch(err => console.error('Plot creation error:', err));
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error creating plot for ${occupation}:`, error);
+                        plotContainer.innerHTML = '<div class="invalid-plot">Error displaying data</div>';
+                    }
+                } else {
+                    plotContainer.innerHTML = '<div class="empty-plot">Select an occupation</div>';
+                }
+                
+                container.appendChild(plotContainer);
+            }
         }
     }
 
@@ -510,37 +549,37 @@ class WageVisualization {
         const isMobile = window.innerWidth <= 1024;
 
         if (isMobile) {
-            // Mobile behavior: single selection
+            // On mobile, clear all existing selections first
             this.selectedOccupations.clear();
             this.occupationPositions.clear();
+            
+            // Remove 'selected' class from all items
             document.querySelectorAll('.occupation-item').forEach(item => {
                 item.classList.remove('selected');
             });
-            
+
+            // Add only the new selection
             this.selectedOccupations.add(occupation);
             this.occupationPositions.set(occupation, 0);
             element.classList.add('selected');
             
-            // Close sidebar
+            // Close the sidebar
             document.querySelector('.sidebar').classList.remove('active');
             
             // Show notification
             this.showNotification(`Showing "${occupation}"`);
         } else {
-            // Desktop behavior (keep existing code)
+            // Desktop behavior remains the same
             if (this.selectedOccupations.has(occupation)) {
-                // Remove the occupation if it's already selected
                 this.selectedOccupations.delete(occupation);
                 const removedPosition = this.occupationPositions.get(occupation);
                 this.occupationPositions.delete(occupation);
                 element.classList.remove('selected');
                 
-                // Update nextPosition to fill this gap next time
                 if (removedPosition !== undefined) {
                     this.nextPosition = removedPosition;
                 }
             } else {
-                // If we already have 9 selections, remove the occupation at nextPosition
                 if (this.selectedOccupations.size >= 9) {
                     // Find occupation at the position we want to replace
                     let occupationToRemove;
