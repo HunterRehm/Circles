@@ -330,32 +330,48 @@ select {
     }
 
     .plot-container {
-        min-height: 300px;  /* Increase minimum height */
+        min-height: 350px;  /* Increased height to accommodate button */
         width: 100%;
-        margin: 0 auto 40px;  /* Increase bottom margin */
+        margin: 0 auto 20px;  /* Reduced margin */
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         display: flex;
         flex-direction: column;
-        align-items: center;
-        box-sizing: border-box;
-        padding: 15px;
-        position: relative;  /* Add this */
-        background: white;   /* Add this */
+        position: relative;
+    }
+
+    /* Ensure plot doesn't take up all the space */
+    .js-plotly-plot {
+        width: 100% !important;
+        height: 280px !important;  /* Fixed height for plot */
+        margin: 0 auto !important;
     }
 
     /* Style the view details button */
     .view-details {
-        position: absolute;  /* Position absolutely */
-        bottom: -30px;      /* Move below the container */
-        left: 50%;          /* Center horizontally */
-        transform: translateX(-50%);
-        width: 90%;         /* Slightly less than container width */
-        padding: 10px;      /* Increase padding */
+        position: relative;  /* Changed from absolute */
+        width: 90%;
+        margin: 15px auto 0;  /* Add margin to top */
+        padding: 10px;
         background: #f0f0f0;
         border: none;
         border-radius: 5px;
         cursor: pointer;
-        font-size: 14px;    /* Larger font size */
-        z-index: 10;        /* Ensure button is above next container */
+        font-size: 14px;
+    }
+
+    /* Remove any conflicting styles */
+    .plot-container:last-child {
+        margin-bottom: 20px;
+    }
+
+    /* Ensure grid container has proper spacing */
+    .grid-container {
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     /* Last plot container needs extra padding to account for button */
@@ -544,13 +560,16 @@ select {
 /* Small mobile devices */
 @media (max-width: 480px) {
     .plot-container {
-        min-height: 250px;  /* Slightly smaller for mobile */
-        margin: 0 auto 35px;  /* Slightly less margin */
-        padding: 10px;
+        min-height: 300px;  /* Slightly smaller for mobile */
+        margin: 0 auto 15px;
+    }
+
+    .js-plotly-plot {
+        height: 230px !important;  /* Smaller height for small screens */
     }
 
     .view-details {
-        bottom: -25px;  /* Slightly closer to container */
+        margin-top: 10px;
         font-size: 13px;
     }
 
