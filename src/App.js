@@ -6,6 +6,16 @@ import './App.css';
 function App() {
     useEffect(() => {
         const visualization = new WageVisualization();
+
+        // Add click handler for main content
+        const mainContent = document.querySelector('.main-content');
+        const sidebar = document.querySelector('.sidebar');
+        
+        mainContent.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
     }, []);
 
     const toggleSidebar = () => {

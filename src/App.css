@@ -306,11 +306,13 @@ select {
         max-width: 350px;
         background: white;
         z-index: 2000;  /* Ensure sidebar is above other content */
+        position: fixed;
     }
 
     .sidebar.active {
         transform: translateX(0);
         box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+        pointer-events: auto;
     }
 
     .main-content {
@@ -448,6 +450,22 @@ select {
         cursor: pointer;
         padding: 8px;
         z-index: 2002;
+    }
+
+    /* Add overlay when sidebar is open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 1999;
+    }
+
+    .sidebar.active + .sidebar-overlay {
+        display: block;
     }
 }
 
