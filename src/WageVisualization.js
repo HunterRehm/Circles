@@ -247,28 +247,26 @@ class WageVisualization {
         
         // Get current viewport width
         const viewportWidth = window.innerWidth;
-        const isMobile = viewportWidth <= 600;
+        const isMobile = viewportWidth <= 1024;
         
         // Adjust sizes based on viewport
         const plotWidth = isDetailView ? 
             (viewportWidth - 40) : 
-            (isMobile ? viewportWidth - 60 : 220);
+            (isMobile ? Math.min(viewportWidth - 30, 500) : 220);
         
         const plotHeight = isDetailView ? 
             (window.innerHeight - 150) : 
-            (isMobile ? 180 : 200);
+            (isMobile ? 250 : 200);
 
-        // Format long titles to wrap onto multiple lines if needed
+        // Format title with smaller font on mobile
         const formatTitle = (title) => {
             if (!isDetailView) {
-                // Split title into words
                 const words = title.split(' ');
                 let lines = [''];
                 let currentLine = 0;
                 
                 words.forEach(word => {
-                    // If adding this word would make the line too long, start a new line
-                    if ((lines[currentLine] + word).length > 20 && lines[currentLine].length > 0) {
+                    if ((lines[currentLine] + word).length > (isMobile ? 25 : 20) && lines[currentLine].length > 0) {
                         currentLine++;
                         lines[currentLine] = '';
                     }
@@ -286,7 +284,7 @@ class WageVisualization {
             autosize: true,
             margin: isDetailView ? 
                 {l: 80, r: 40, t: 60, b: 60} : 
-                {l: 35, r: 15, t: isMobile ? 60 : 80, b: 25},
+                {l: 35, r: 15, t: isMobile ? 70 : 80, b: 25},
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             showlegend: false,
@@ -297,7 +295,7 @@ class WageVisualization {
                 x: 0.5,
                 y: 0.95,
                 font: {
-                    size: isDetailView ? 16 : 11
+                    size: isDetailView ? 16 : (isMobile ? 13 : 11)
                 },
                 xanchor: 'center',
                 yanchor: 'top'
@@ -309,7 +307,10 @@ class WageVisualization {
                 range: [2017, 2023],
                 gridcolor: 'rgba(128,128,128,0.1)',
                 linecolor: 'rgba(128,128,128,0.3)',
-                title: isDetailView ? "Year" : null
+                title: isDetailView ? "Year" : null,
+                tickfont: {
+                    size: isMobile ? 12 : 10
+                }
             },
             yaxis: {
                 showgrid: true,
@@ -319,7 +320,10 @@ class WageVisualization {
                 ticksuffix: '%',
                 gridcolor: 'rgba(128,128,128,0.1)',
                 linecolor: 'rgba(128,128,128,0.3)',
-                title: isDetailView ? "% Change from 2017" : null
+                title: isDetailView ? "% Change from 2017" : null,
+                tickfont: {
+                    size: isMobile ? 12 : 10
+                }
             },
             font: {
                 size: isDetailView ? 12 : 8
