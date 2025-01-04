@@ -330,14 +330,45 @@ select {
     }
 
     .plot-container {
-        min-height: 250px;
+        min-height: 300px;  /* Increase minimum height */
         width: 100%;
-        margin: 0 auto 30px;  /* Add bottom margin */
+        margin: 0 auto 40px;  /* Increase bottom margin */
         display: flex;
         flex-direction: column;
         align-items: center;
         box-sizing: border-box;
         padding: 15px;
+        position: relative;  /* Add this */
+        background: white;   /* Add this */
+    }
+
+    /* Style the view details button */
+    .view-details {
+        position: absolute;  /* Position absolutely */
+        bottom: -30px;      /* Move below the container */
+        left: 50%;          /* Center horizontally */
+        transform: translateX(-50%);
+        width: 90%;         /* Slightly less than container width */
+        padding: 10px;      /* Increase padding */
+        background: #f0f0f0;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;    /* Larger font size */
+        z-index: 10;        /* Ensure button is above next container */
+    }
+
+    /* Last plot container needs extra padding to account for button */
+    .plot-container:last-child {
+        margin-bottom: 40px;
+    }
+
+    /* Ensure plots don't overflow their containers */
+    .js-plotly-plot {
+        width: 100% !important;
+        margin: 0 auto !important;
+        display: block !important;
+        max-height: 250px;  /* Limit plot height */
     }
 
     .view-details {
@@ -513,14 +544,14 @@ select {
 /* Small mobile devices */
 @media (max-width: 480px) {
     .plot-container {
-        margin: 0 auto 20px;  /* Slightly less margin for smaller screens */
-        min-height: 200px;
+        min-height: 250px;  /* Slightly smaller for mobile */
+        margin: 0 auto 35px;  /* Slightly less margin */
         padding: 10px;
     }
 
     .view-details {
-        margin-top: 12px;
-        margin-bottom: 3px;
+        bottom: -25px;  /* Slightly closer to container */
+        font-size: 13px;
     }
 
     h1 {
