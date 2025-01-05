@@ -328,8 +328,9 @@ select {
         width: calc(100% - 30px);
     }
 
+    /* Ensure only one plot container is visible */
     .plot-container {
-        min-height: calc(100vh - 150px);  /* Take up most of the viewport height */
+        min-height: calc(100vh - 150px);
         width: 100%;
         margin: 0 auto;
         padding: 15px;
@@ -338,15 +339,15 @@ select {
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    /* Hide view details button on mobile */
-    .view-details {
-        display: none;
+    /* Remove any margins between plots */
+    .plot-container + .plot-container {
+        display: none;  /* Hide any additional plot containers */
     }
 
     /* Adjust plot size for mobile */
     .js-plotly-plot {
         width: 100% !important;
-        height: calc(100vh - 200px) !important;  /* Adjust height to fit viewport */
+        height: calc(100vh - 200px) !important;
     }
 
     /* Show message when no occupation is selected */
@@ -359,6 +360,11 @@ select {
         padding: 20px;
         color: #666;
         font-size: 16px;
+    }
+
+    /* Hide view details button on mobile */
+    .view-details {
+        display: none;
     }
 
     /* Menu button styles */
