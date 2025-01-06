@@ -292,6 +292,8 @@ h1 {
         margin: 0 auto;
         width: 100%;
         box-sizing: border-box;
+        max-width: 100vw;  /* Ensure container doesn't exceed viewport width */
+        overflow-x: hidden;  /* Prevent horizontal scrolling */
     }
 
     .plot-container {
@@ -300,6 +302,15 @@ h1 {
         margin: 10px 0;
         height: auto;
         min-height: 300px;
+        width: calc(100% - 24px);  /* Account for padding */
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Ensure plot fits within container */
+    .js-plotly-plot {
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
     .plot-container + .plot-container {

@@ -296,8 +296,8 @@ class WageVisualization {
             let endWage = latestData.A_MEAN;
             
             if (isInflationAdjusted) {
-                startWage = startWage * this.inflationData[2017];
                 endWage = endWage / this.inflationData[latestData.YEAR];
+                startWage = startWage / this.inflationData[2017];
             }
             
             return endWage > startWage ? 'green' : 'red';
@@ -451,37 +451,22 @@ class WageVisualization {
                 }
             };
 
-            // Get viewport dimensions
-            const viewportWidth = Math.min(document.documentElement.clientWidth, window.innerWidth);
-            const isMobile = viewportWidth <= 1024;
-
-            // Calculate appropriate width and height
-            let plotWidth, plotHeight;
-            if (isMobile) {
-                // For mobile, make plot fit within viewport with padding
-                plotWidth = viewportWidth - 40;  // 20px padding on each side
-                plotHeight = Math.min(400, plotWidth * 0.75);  // Keep aspect ratio
-            } else {
-                plotWidth = 700;
-                plotHeight = 400;
-            }
-
             const layout = {
-                height: plotHeight,
-                width: plotWidth,
-                autosize: true,  // Enable autosize
+                height: 400,
+                width: 700,
+                autosize: false,
                 margin: {
-                    l: showRawSalary ? (isMobile ? 60 : 100) : (isMobile ? 50 : 80),  // Smaller margins on mobile
-                    r: isMobile ? 20 : 30,
-                    t: isMobile ? 40 : 50,
-                    b: isMobile ? 50 : 60
+                    l: showRawSalary ? 100 : 80,    // Increase left margin for salary numbers
+                    r: 30,
+                    t: 50,
+                    b: 60
                 },
                 title: {
                     text: occupation,
                     x: 0.5,
                     y: 0.95,
                     font: { 
-                        size: isMobile ? 14 : 18,  // Smaller font on mobile
+                        size: 18,
                         weight: 500
                     }
                 },
@@ -492,11 +477,11 @@ class WageVisualization {
                     range: [2017, 2023],
                     gridcolor: 'rgba(128,128,128,0.1)',
                     linecolor: 'rgba(128,128,128,0.3)',
-                    tickfont: { size: isMobile ? 12 : 14 },  // Smaller ticks on mobile
+                    tickfont: { size: 14 },
                     title: {
                         text: 'Year',
-                        font: { size: isMobile ? 12 : 16 },
-                        standoff: isMobile ? 10 : 15
+                        font: { size: 16 },
+                        standoff: 15  // Add space between axis and title
                     }
                 },
                 yaxis: {
@@ -508,13 +493,13 @@ class WageVisualization {
                     ticksuffix: showRawSalary ? '' : '%',
                     gridcolor: 'rgba(128,128,128,0.1)',
                     linecolor: 'rgba(128,128,128,0.3)',
-                    tickfont: { size: isMobile ? 12 : 14 },  // Smaller ticks on mobile
+                    tickfont: { size: 14 },
                     title: {
                         text: showRawSalary ? 'Annual Salary' : '% Change from 2017',
-                        font: { size: isMobile ? 12 : 16 },
-                        standoff: showRawSalary ? (isMobile ? 15 : 25) : (isMobile ? 10 : 15)
+                        font: { size: 16 },
+                        standoff: showRawSalary ? 25 : 15  // Increase standoff for salary view
                     },
-                    automargin: true
+                    automargin: true  // Add this to help with margin calculations
                 }
             };
 
@@ -744,41 +729,43 @@ class WageVisualization {
             const baseWage = occupationData.find(d => d.YEAR === 2017).A_MEAN;
             const latestData = occupationData.sort((a, b) => b.YEAR - a.YEAR)[0];
             
-            // Calculate total change with inflation adjustment if needed
+            // Calculate total change first
             let totalChange;
             if (isInflationAdjusted) {
-                const startWage = baseWage;
-                const endWage = latestData.A_MEAN;
-                const endInflationFactor = this.inflationData[latestData.YEAR];
-                totalChange = ((endWage / endInflationFactor - startWage) / startWage) * 100;
+                const finalWage = latestData.A_MEAN / this.inflationData[latestData.YEAR];
+                const initialWage = baseWage / this.inflationData[2017];
+                totalChange = ((finalWage - initialWage) / initialWage) * 100;
             } else {
                 totalChange = ((latestData.A_MEAN - baseWage) / baseWage) * 100;
             }
-            
-            // Calculate year-over-year changes
+
+            // Calculate compound annual growth rate (CAGR)
+            const numberOfYears = latestData.YEAR - 2017;
+            const avgChange = (Math.pow(1 + totalChange/100, 1/numberOfYears) - 1) * 100;
+
+            // Calculate year-over-year changes for max/min
             const changes = [];
-            let previousWage = baseWage;
             const salaries = [];
+            const sortedData = occupationData.sort((a, b) => a.YEAR - b.YEAR);
             
-            occupationData.sort((a, b) => a.YEAR - b.YEAR).forEach(d => {
-                let currentWage = d.A_MEAN;
-                salaries.push(isInflationAdjusted ? currentWage / this.inflationData[d.YEAR] : currentWage);
+            for (let i = 1; i < sortedData.length; i++) {
+                let currentWage = sortedData[i].A_MEAN;
+                let previousWage = sortedData[i-1].A_MEAN;
                 
                 if (isInflationAdjusted) {
-                    currentWage = currentWage / this.inflationData[d.YEAR];
-                    previousWage = previousWage / this.inflationData[d.YEAR - 1];
+                    currentWage = currentWage / this.inflationData[sortedData[i].YEAR];
+                    previousWage = previousWage / this.inflationData[sortedData[i-1].YEAR];
                 }
-                if (d.YEAR > 2017) {
-                    const yearChange = ((currentWage - previousWage) / previousWage) * 100;
-                    changes.push(yearChange);
-                }
-                previousWage = d.A_MEAN;
-            });
-
-            // Calculate other statistics
-            const avgChange = changes.reduce((a, b) => a + b, 0) / changes.length;
-            const maxChange = Math.max(...changes);
-            const minChange = Math.min(...changes);
+                
+                const yearChange = ((currentWage - previousWage) / previousWage) * 100;
+                changes.push(yearChange);
+                salaries.push(currentWage);
+            }
+            
+            // Add first year's salary
+            salaries.unshift(isInflationAdjusted ? 
+                sortedData[0].A_MEAN / this.inflationData[sortedData[0].YEAR] : 
+                sortedData[0].A_MEAN);
 
             // Calculate salary statistics
             const currentSalary = salaries[salaries.length - 1];
@@ -786,11 +773,14 @@ class WageVisualization {
             const maxSalary = Math.max(...salaries);
             const minSalary = Math.min(...salaries);
 
+            const maxChange = Math.max(...changes);
+            const minChange = Math.min(...changes);
+
             // Format values
             const formatPercent = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
             const formatSalary = (value) => `$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
             
-            // Update percentage changes
+            // Update all elements
             const elements = {
                 totalChange: [formatPercent, totalChange],
                 avgChange: [formatPercent, avgChange],
@@ -802,7 +792,6 @@ class WageVisualization {
                 minSalary: [formatSalary, minSalary]
             };
 
-            // Update all elements
             Object.entries(elements).forEach(([id, [formatter, value]]) => {
                 const el = document.getElementById(id);
                 if (el) {
