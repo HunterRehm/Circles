@@ -288,18 +288,18 @@ h1 {
     }
 
     .grid-container {
-        display: block;
-        padding: 15px;
-        max-width: 500px;
+        padding: 10px;
         margin: 0 auto;
-        width: calc(100% - 30px);
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .plot-container {
-        min-height: calc(100vh - 150px);
-        width: 100%;
-        margin: 0 auto;
-        padding: 15px;
+        padding: 12px;
+        border-radius: 12px;
+        margin: 10px 0;
+        height: auto;
+        min-height: 300px;
     }
 
     .plot-container + .plot-container {
@@ -307,29 +307,16 @@ h1 {
     }
 
     h1 {
-        padding-left: 0;
-        margin-top: 70px;
-        font-size: 20px;
+        font-size: 18px;
+        margin: 60px 0 15px 0;
+        padding: 0 15px;
     }
 
     .menu-toggle {
-        display: block;
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 2001;
-        background: #1f77b4;
-        color: white;
-        border: none;
-        padding: 12px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 24px;
-        width: 45px;
-        height: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        background: #fff;
+        color: #1f77b4;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-radius: 8px;
     }
 
     .close-menu {
@@ -342,6 +329,87 @@ h1 {
 
     .notification-container {
         top: 80px;
+    }
+
+    /* Stats container mobile styling */
+    .stats-container {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 12px;
+    }
+
+    .stat-section {
+        margin-bottom: 20px;
+    }
+
+    .stat-section-title {
+        font-size: 13px;
+        font-weight: 600;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 12px;
+    }
+
+    /* Make stats scroll horizontally on mobile */
+    .stat-row {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        gap: 12px;
+    }
+
+    .stat-item {
+        flex: 0 0 auto;
+        min-width: 140px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        scroll-snap-align: start;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+    }
+
+    /* View toggle mobile styling */
+    .view-toggle {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 15px 0;
+    }
+
+    .view-toggle label {
+        font-size: 13px;
+    }
+
+    /* Hide scrollbars but keep functionality */
+    .stat-row::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .stat-row {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Add scroll indicators */
+    .stat-section::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        width: 20px;
+        height: 100%;
+        background: linear-gradient(to right, transparent, #fff);
+        pointer-events: none;
     }
 }
 
