@@ -171,12 +171,46 @@ class WageVisualization {
 
         gridToggle.onchange = () => {
             detailToggle.checked = gridToggle.checked;
-            if (this.selectedGraph) {
-                const plot = this.createPlot(this.selectedGraph, true);
-                Plotly.newPlot('detailPlot', [plot.trace], plot.layout);
-            } else {
-                this.renderGridView();
-            }
+            
+            // Use requestAnimationFrame for better performance
+            requestAnimationFrame(() => {
+                // Update mini plots in batches
+                const miniPlots = Array.from(document.querySelectorAll('.mini-plot'));
+                const batchSize = 10;
+                
+                const updateBatch = (startIndex) => {
+                    const endIndex = Math.min(startIndex + batchSize, miniPlots.length);
+                    
+                    for (let i = startIndex; i < endIndex; i++) {
+                        const plotDiv = miniPlots[i];
+                        const occupation = plotDiv.parentElement.dataset.occupation;
+                        if (occupation) {
+                            const plot = this.createMiniPlot(occupation);
+                            if (plot && plot.trace && plot.layout) {
+                                Plotly.newPlot(plotDiv, [plot.trace], plot.layout, {
+                                    displayModeBar: false,
+                                    staticPlot: true
+                                });
+                            }
+                        }
+                    }
+                    
+                    if (endIndex < miniPlots.length) {
+                        requestAnimationFrame(() => updateBatch(endIndex));
+                    }
+                };
+                
+                // Start updating in batches
+                updateBatch(0);
+                
+                // Update main plot immediately
+                if (this.selectedGraph) {
+                    const plot = this.createPlot(this.selectedGraph, true);
+                    Plotly.newPlot('detailPlot', [plot.trace], plot.layout);
+                } else {
+                    this.renderGridView();
+                }
+            });
         };
 
         detailToggle.onchange = () => {
@@ -239,39 +273,64 @@ class WageVisualization {
                 noMatchMessage.style.display = 'none';
             }
         });
+
+        // Add view toggle handler
+        const viewToggle = document.getElementById('viewToggle');
+        viewToggle.onchange = () => {
+            if (this.selectedGraph) {
+                const plot = this.createPlot(this.selectedGraph, true);
+                Plotly.newPlot('detailPlot', [plot.trace], plot.layout);
+            } else {
+                this.renderGridView();
+            }
+        };
     }
 
-    getTrendColor(occupationData, isInflationAdjusted = false) {
+    getTrendColor(occupationData, isInflationAdjusted = false, showRawSalary = false) {
         const baseWage = occupationData.find(d => d.YEAR === 2017).A_MEAN;
         const latestData = occupationData.sort((a, b) => b.YEAR - a.YEAR)[0];
         
-        // Calculate the percentage change for the latest point
-        if (isInflationAdjusted) {
-            const inflationFactor = this.inflationData[latestData.YEAR];
-            const percentChange = ((latestData.A_MEAN - (baseWage * inflationFactor)) / (baseWage * inflationFactor)) * 100;
-            return percentChange > 0 ? 'green' : 'red';
+        if (showRawSalary) {
+            // For raw salary view
+            let startWage = baseWage;
+            let endWage = latestData.A_MEAN;
+            
+            if (isInflationAdjusted) {
+                startWage = startWage * this.inflationData[2017];
+                endWage = endWage / this.inflationData[latestData.YEAR];
+            }
+            
+            return endWage > startWage ? 'green' : 'red';
         } else {
-            const percentChange = ((latestData.A_MEAN - baseWage) / baseWage) * 100;
-            return percentChange > 0 ? 'green' : 'red';
+            // For percentage change view
+            if (isInflationAdjusted) {
+                const inflationFactor = this.inflationData[latestData.YEAR];
+                const percentChange = ((latestData.A_MEAN - (baseWage * inflationFactor)) / (baseWage * inflationFactor)) * 100;
+                return percentChange > 0 ? 'green' : 'red';
+            } else {
+                const percentChange = ((latestData.A_MEAN - baseWage) / baseWage) * 100;
+                return percentChange > 0 ? 'green' : 'red';
+            }
         }
     }
 
     getPlotLayout(occupation, isDetailView, isInflationAdjusted) {
         const titleSuffix = isInflationAdjusted ? ' (Inflation Adjusted)' : '';
         
-        // Get current viewport width
+        // Get current viewport width and height
         const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
         const isMobile = viewportWidth <= 1024;
         
         // Adjust sizes based on viewport
         const plotWidth = isDetailView ? 
             (viewportWidth - 40) : 
-            (isMobile ? Math.min(viewportWidth - 30, 500) : 220);
+            (isMobile ? Math.min(viewportWidth - 30, 500) : Math.min(viewportWidth - 450, 600));  // Reduced to 600px max
         
         const plotHeight = isDetailView ? 
-            (window.innerHeight - 150) : 
-            (isMobile ? 250 : 200);
-
+            (viewportHeight - 150) : 
+            Math.min(viewportHeight * 0.3, 250);  // Reduced to 250px max height
+        
         // Format title with smaller font on mobile
         const formatTitle = (title) => {
             if (!isDetailView) {
@@ -295,10 +354,13 @@ class WageVisualization {
         return {
             height: plotHeight,
             width: plotWidth,
-            autosize: true,
-            margin: isDetailView ? 
-                {l: 80, r: 40, t: 60, b: 60} : 
-                {l: 35, r: 15, t: isMobile ? 70 : 80, b: 25},
+            autosize: false,
+            margin: {
+                l: 45,  // Further reduced margins
+                r: 25,
+                t: 35,
+                b: 25
+            },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             showlegend: false,
@@ -309,7 +371,7 @@ class WageVisualization {
                 x: 0.5,
                 y: 0.95,
                 font: {
-                    size: isDetailView ? 16 : (isMobile ? 13 : 11)
+                    size: 14  // Slightly smaller title
                 },
                 xanchor: 'center',
                 yanchor: 'top'
@@ -357,20 +419,31 @@ class WageVisualization {
             const isInflationAdjusted = isDetailView ? 
                 document.getElementById('inflationToggleDetail').checked :
                 document.getElementById('inflationToggle').checked;
+            const showRawSalary = document.getElementById('viewToggle').checked;
 
             const trace = {
                 x: occupationData.map(d => d.YEAR),
                 y: occupationData.map(d => {
-                    const wage = d.A_MEAN;
-                    if (isInflationAdjusted) {
-                        const inflationFactor = this.inflationData[d.YEAR];
-                        return ((wage - (baseWage * inflationFactor)) / (baseWage * inflationFactor)) * 100;
+                    if (showRawSalary) {
+                        // Show raw salary data
+                        const wage = d.A_MEAN;
+                        if (isInflationAdjusted) {
+                            return wage / this.inflationData[d.YEAR];
+                        }
+                        return wage;
+                    } else {
+                        // Show percentage change
+                        const wage = d.A_MEAN;
+                        if (isInflationAdjusted) {
+                            const inflationFactor = this.inflationData[d.YEAR];
+                            return ((wage - (baseWage * inflationFactor)) / (baseWage * inflationFactor)) * 100;
+                        }
+                        return ((wage - baseWage) / baseWage) * 100;
                     }
-                    return ((wage - baseWage) / baseWage) * 100;
                 }),
                 mode: 'lines+markers',
                 line: {
-                    color: this.getTrendColor(occupationData, isInflationAdjusted),
+                    color: this.getTrendColor(occupationData, isInflationAdjusted, showRawSalary),
                     width: isDetailView ? 3 : 2
                 },
                 marker: {
@@ -378,7 +451,58 @@ class WageVisualization {
                 }
             };
 
-            const layout = this.getPlotLayout(occupation, isDetailView, isInflationAdjusted);
+            const layout = {
+                height: 400,
+                width: 700,
+                autosize: false,
+                margin: {
+                    l: showRawSalary ? 100 : 80,    // Increase left margin for salary numbers
+                    r: 30,
+                    t: 50,
+                    b: 60
+                },
+                title: {
+                    text: occupation,
+                    x: 0.5,
+                    y: 0.95,
+                    font: { 
+                        size: 18,
+                        weight: 500
+                    }
+                },
+                xaxis: {
+                    showgrid: true,
+                    showticklabels: true,
+                    showline: true,
+                    range: [2017, 2023],
+                    gridcolor: 'rgba(128,128,128,0.1)',
+                    linecolor: 'rgba(128,128,128,0.3)',
+                    tickfont: { size: 14 },
+                    title: {
+                        text: 'Year',
+                        font: { size: 16 },
+                        standoff: 15  // Add space between axis and title
+                    }
+                },
+                yaxis: {
+                    showgrid: true,
+                    showticklabels: true,
+                    showline: true,
+                    tickformat: showRawSalary ? ',.0f' : '.0f',
+                    tickprefix: showRawSalary ? '$' : '',
+                    ticksuffix: showRawSalary ? '' : '%',
+                    gridcolor: 'rgba(128,128,128,0.1)',
+                    linecolor: 'rgba(128,128,128,0.3)',
+                    tickfont: { size: 14 },
+                    title: {
+                        text: showRawSalary ? 'Annual Salary' : '% Change from 2017',
+                        font: { size: 16 },
+                        standoff: showRawSalary ? 25 : 15  // Increase standoff for salary view
+                    },
+                    automargin: true  // Add this to help with margin calculations
+                }
+            };
+
             return { trace, layout };
         } catch (error) {
             console.error(`Error creating plot for ${occupation}:`, error);
@@ -387,11 +511,11 @@ class WageVisualization {
     }
 
     renderGridView() {
-        const container = document.getElementById('gridView');
+        const container = document.getElementById('plotContainer');
         const isMobile = window.innerWidth <= 1024;
         
         if (!container) {
-            console.error('Grid container not found');
+            console.error('Plot container not found');
             return;
         }
         container.innerHTML = '';
@@ -401,97 +525,29 @@ class WageVisualization {
             this.processOccupations();
         }
 
-        if (isMobile) {
-            // Mobile: Show single plot
-            const plotContainer = document.createElement('div');
-            plotContainer.className = 'plot-container';
-            
-            // Ensure only one occupation is selected on mobile
-            if (this.selectedOccupations.size > 1) {
-                const firstOccupation = Array.from(this.selectedOccupations)[0];
-                this.selectedOccupations.clear();
-                this.selectedOccupations.add(firstOccupation);
-                this.occupationPositions.clear();
-                this.occupationPositions.set(firstOccupation, 0);
-            }
-            
-            if (this.selectedOccupations.size === 0) {
-                plotContainer.innerHTML = '<div class="empty-plot">Select an occupation from the menu to view its trend</div>';
-            } else {
-                const occupation = Array.from(this.selectedOccupations)[0];
-                try {
-                    const plot = this.createPlot(occupation);
-                    if (plot && plot.trace && plot.layout) {
-                        Plotly.newPlot(plotContainer, [plot.trace], plot.layout, {
-                            displayModeBar: false,
-                            staticPlot: true,
-                            responsive: true
-                        });
-                    }
-                } catch (error) {
-                    console.error(`Error creating plot for ${occupation}:`, error);
-                    plotContainer.innerHTML = '<div class="invalid-plot">Error displaying data</div>';
-                }
-            }
-            container.appendChild(plotContainer);
+        if (this.selectedOccupations.size === 0) {
+            container.innerHTML = '<div class="empty-plot">Select an occupation from the menu to view its trend</div>';
+            // Clear stats when no occupation is selected
+            ['totalChange', 'avgChange', 'maxChange', 'minChange'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = '-';
+            });
         } else {
-            // Desktop: Keep existing grid view code
-            // Create a fixed 3x3 grid
-            const gridSize = 9;
-            
-            // If we have no selections, show default occupations
-            if (this.selectedOccupations.size === 0) {
-                this.processOccupations();
-            }
-
-            // Create array of 9 positions, fill with occupations or null
-            const gridOccupations = new Array(gridSize).fill(null);
-            
-            // Place occupations in their assigned positions
-            for (const [occupation, position] of this.occupationPositions.entries()) {
-                if (position < gridSize) {
-                    gridOccupations[position] = occupation;
+            const occupation = Array.from(this.selectedOccupations)[this.selectedOccupations.size - 1];
+            try {
+                const plot = this.createPlot(occupation, true);
+                if (plot && plot.trace && plot.layout) {
+                    Plotly.newPlot(container, [plot.trace], plot.layout, {
+                        displayModeBar: false,
+                        staticPlot: isMobile,
+                        responsive: true
+                    });
+                    // Update stats after plotting
+                    this.updateStats(occupation);
                 }
-            }
-
-            // Create all 9 grid cells
-            for (let i = 0; i < gridSize; i++) {
-                const plotContainer = document.createElement('div');
-                plotContainer.className = 'plot-container';
-                
-                const occupation = gridOccupations[i];
-                if (occupation) {
-                    try {
-                        const occupationData = this.data.filter(d => d.OCC_TITLE === occupation);
-                        if (!this.hasCompleteData(occupationData)) {
-                            plotContainer.innerHTML = '<div class="invalid-plot">Insufficient data available for this occupation</div>';
-                        } else {
-                            const plot = this.createPlot(occupation);
-                            if (plot && plot.trace && plot.layout) {
-                                Plotly.newPlot(plotContainer, [plot.trace], plot.layout, {
-                                    displayModeBar: false,
-                                    staticPlot: true,
-                                    responsive: true
-                                })
-                                    .then(() => {
-                                        const button = document.createElement('button');
-                                        button.className = 'view-details';
-                                        button.textContent = 'View Details';
-                                        button.onclick = () => this.showDetailView(occupation);
-                                        plotContainer.appendChild(button);
-                                    })
-                                    .catch(err => console.error('Plot creation error:', err));
-                            }
-                        }
-                    } catch (error) {
-                        console.error(`Error creating plot for ${occupation}:`, error);
-                        plotContainer.innerHTML = '<div class="invalid-plot">Error displaying data</div>';
-                    }
-                } else {
-                    plotContainer.innerHTML = '<div class="empty-plot">Select an occupation</div>';
-                }
-                
-                container.appendChild(plotContainer);
+            } catch (error) {
+                console.error(`Error creating plot for ${occupation}:`, error);
+                container.innerHTML = '<div class="invalid-plot">Error displaying data</div>';
             }
         }
     }
@@ -518,6 +574,7 @@ class WageVisualization {
 
     setupOccupationList() {
         const occupationList = document.getElementById('occupationList');
+        const isMobile = window.innerWidth <= 1024;
         
         // Clear the list first to prevent duplicates
         occupationList.innerHTML = '';
@@ -537,8 +594,29 @@ class WageVisualization {
                 item.classList.add('invalid-data');
                 item.title = 'Insufficient data available';
             }
+
+            // Create container for occupation name
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'occupation-name';
+            nameDiv.textContent = occupation;
+            item.appendChild(nameDiv);
+
+            // Add mini plot for desktop version
+            if (!isMobile && hasValidData) {
+                const plotDiv = document.createElement('div');
+                plotDiv.className = 'mini-plot';
+                item.appendChild(plotDiv);
+
+                // Create simplified plot
+                const plot = this.createMiniPlot(occupation);
+                if (plot && plot.trace && plot.layout) {
+                    Plotly.newPlot(plotDiv, [plot.trace], plot.layout, {
+                        displayModeBar: false,
+                        staticPlot: true
+                    });
+                }
+            }
             
-            item.textContent = occupation;
             item.dataset.occupation = occupation;
             
             // Only allow clicking if data is valid
@@ -548,6 +626,59 @@ class WageVisualization {
             
             occupationList.appendChild(item);
         });
+    }
+
+    // Add new method for creating mini plots
+    createMiniPlot(occupation) {
+        try {
+            const occupationData = this.data.filter(d => d.OCC_TITLE === occupation);
+            const baseWage = occupationData.find(d => d.YEAR === 2017).A_MEAN;
+            const isInflationAdjusted = document.getElementById('inflationToggle').checked;
+            
+            const trace = {
+                x: occupationData.map(d => d.YEAR),
+                y: occupationData.map(d => {
+                    const wage = d.A_MEAN;
+                    if (isInflationAdjusted) {
+                        const inflationFactor = this.inflationData[d.YEAR];
+                        return ((wage - (baseWage * inflationFactor)) / (baseWage * inflationFactor)) * 100;
+                    }
+                    return ((wage - baseWage) / baseWage) * 100;
+                }),
+                mode: 'lines',
+                line: {
+                    color: this.getTrendColor(occupationData, isInflationAdjusted),
+                    width: 1
+                },
+                hoverinfo: 'none'
+            };
+
+            const layout = {
+                height: 16,
+                width: 24,
+                margin: { l: 0, r: 0, t: 0, b: 0, pad: 0 },
+                xaxis: {
+                    visible: false,
+                    showgrid: false,
+                    fixedrange: true,
+                    showline: false
+                },
+                yaxis: {
+                    visible: false,
+                    showgrid: false,
+                    fixedrange: true,
+                    showline: false
+                },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+                autosize: false
+            };
+
+            return { trace, layout };
+        } catch (error) {
+            console.error(`Error creating mini plot for ${occupation}:`, error);
+            return null;
+        }
     }
 
     showNotification(message) {
@@ -566,88 +697,100 @@ class WageVisualization {
     toggleOccupation(occupation, element) {
         const isMobile = window.innerWidth <= 1024;
 
+        // Clear all existing selections first
+        this.selectedOccupations.clear();
+        this.occupationPositions.clear();
+        
+        // Remove 'selected' class from all items
+        document.querySelectorAll('.occupation-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+
+        // Add the new selection
+        this.selectedOccupations.add(occupation);
+        this.occupationPositions.set(occupation, 0);
+        element.classList.add('selected');
+        
+        // Close sidebar on mobile
         if (isMobile) {
-            // On mobile, clear all existing selections first
-            this.selectedOccupations.clear();
-            this.occupationPositions.clear();
+            document.querySelector('.sidebar').classList.remove('active');
+        }
+        
+        // Show notification
+        this.showNotification(`Showing "${occupation}"`);
+        
+        this.renderGridView();
+    }
+
+    updateStats(occupation) {
+        try {
+            const occupationData = this.data.filter(d => d.OCC_TITLE === occupation);
+            const isInflationAdjusted = document.getElementById('inflationToggle').checked;
+            const baseWage = occupationData.find(d => d.YEAR === 2017).A_MEAN;
             
-            // Remove 'selected' class from all items
-            document.querySelectorAll('.occupation-item').forEach(item => {
-                item.classList.remove('selected');
+            // Calculate year-over-year changes
+            const changes = [];
+            let previousWage = baseWage;
+            const salaries = [];
+            
+            occupationData.sort((a, b) => a.YEAR - b.YEAR).forEach(d => {
+                let currentWage = d.A_MEAN;
+                salaries.push(isInflationAdjusted ? currentWage / this.inflationData[d.YEAR] : currentWage);
+                
+                if (isInflationAdjusted) {
+                    currentWage = currentWage / this.inflationData[d.YEAR];
+                    previousWage = previousWage / this.inflationData[d.YEAR - 1];
+                }
+                if (d.YEAR > 2017) {
+                    const yearChange = ((currentWage - previousWage) / previousWage) * 100;
+                    changes.push(yearChange);
+                }
+                previousWage = d.A_MEAN;
             });
 
-            // Add only the new selection
-            this.selectedOccupations.add(occupation);
-            this.occupationPositions.set(occupation, 0);
-            element.classList.add('selected');
-            
-            // Close the sidebar
-            document.querySelector('.sidebar').classList.remove('active');
-            
-            // Show notification
-            this.showNotification(`Showing "${occupation}"`);
-        } else {
-            // Desktop behavior remains the same
-            if (this.selectedOccupations.has(occupation)) {
-                this.selectedOccupations.delete(occupation);
-                const removedPosition = this.occupationPositions.get(occupation);
-                this.occupationPositions.delete(occupation);
-                element.classList.remove('selected');
-                
-                if (removedPosition !== undefined) {
-                    this.nextPosition = removedPosition;
-                }
-            } else {
-                if (this.selectedOccupations.size >= 9) {
-                    // Find occupation at the position we want to replace
-                    let occupationToRemove;
-                    for (const [occ, pos] of this.occupationPositions.entries()) {
-                        if (pos === this.nextPosition) {
-                            occupationToRemove = occ;
-                            break;
-                        }
-                    }
+            // Calculate statistics
+            const totalChange = ((occupationData[occupationData.length - 1].A_MEAN - baseWage) / baseWage) * 100;
+            const avgChange = changes.reduce((a, b) => a + b, 0) / changes.length;
+            const maxChange = Math.max(...changes);
+            const minChange = Math.min(...changes);
 
-                    if (occupationToRemove) {
-                        this.selectedOccupations.delete(occupationToRemove);
-                        this.occupationPositions.delete(occupationToRemove);
-                        
-                        // Remove selected class from the old element
-                        const oldElement = document.querySelector(`.occupation-item[data-occupation="${occupationToRemove}"]`);
-                        if (oldElement) {
-                            oldElement.classList.remove('selected');
-                        }
-                    }
-                } else {
-                    // Find the first empty position if there are gaps
-                    const usedPositions = new Set(this.occupationPositions.values());
-                    for (let i = 0; i < 9; i++) {
-                        if (!usedPositions.has(i)) {
-                            this.nextPosition = i;
-                            break;
-                        }
+            // Calculate salary statistics
+            const currentSalary = salaries[salaries.length - 1];
+            const avgSalary = salaries.reduce((a, b) => a + b, 0) / salaries.length;
+            const maxSalary = Math.max(...salaries);
+            const minSalary = Math.min(...salaries);
+
+            // Format values
+            const formatPercent = (value) => `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+            const formatSalary = (value) => `$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+            
+            // Update percentage changes
+            const elements = {
+                totalChange: [formatPercent, totalChange],
+                avgChange: [formatPercent, avgChange],
+                maxChange: [formatPercent, maxChange],
+                minChange: [formatPercent, minChange],
+                currentSalary: [formatSalary, currentSalary],
+                avgSalary: [formatSalary, avgSalary],
+                maxSalary: [formatSalary, maxSalary],
+                minSalary: [formatSalary, minSalary]
+            };
+
+            // Update all elements
+            Object.entries(elements).forEach(([id, [formatter, value]]) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = formatter(value);
+                    if (id.includes('Change')) {
+                        el.className = `stat-value ${value >= 0 ? 'positive' : 'negative'}`;
+                    } else {
+                        el.className = 'stat-value';
                     }
                 }
-                
-                // Add the new occupation at the next position
-                this.selectedOccupations.add(occupation);
-                this.occupationPositions.set(occupation, this.nextPosition);
-                element.classList.add('selected');
-                
-                // Show notification
-                this.showNotification(`Added "${occupation}" to main page!`);
-                
-                // Update next position (cycle through 0-8)
-                this.nextPosition = (this.nextPosition + 1) % 9;
-                
-                // Find next available position
-                const usedPositions = new Set(this.occupationPositions.values());
-                while (usedPositions.has(this.nextPosition) && usedPositions.size < 9) {
-                    this.nextPosition = (this.nextPosition + 1) % 9;
-                }
-            }
+            });
+        } catch (error) {
+            console.error('Error updating stats:', error);
         }
-        this.renderGridView();
     }
 }
 

@@ -49,9 +49,6 @@ function App() {
             <h1>Wisconsin Wage Trends (2017-2023)</h1>
             
             <div className="sidebar">
-                <button className="close-menu" onClick={closeSidebar}>
-                    ×
-                </button>
                 <div className="search-section">
                     <h2>Search for an Occupation</h2>
                     <input 
@@ -73,7 +70,59 @@ function App() {
 
             <div className="main-content">
                 <div id="gridView" className="grid-container">
-                    {/* Grid plots will be inserted here */}
+                    <div id="statsContainer" className="stats-container">
+                        <div className="stat-section">
+                            <h3 className="stat-section-title">Percentage Changes</h3>
+                            <div className="stat-row">
+                                <div className="stat-item">
+                                    <div className="stat-label">Total Change</div>
+                                    <div id="totalChange" className="stat-value">-</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-label">Average Annual Change</div>
+                                    <div id="avgChange" className="stat-value">-</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-label">Highest Change</div>
+                                    <div id="maxChange" className="stat-value">-</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-label">Lowest Change</div>
+                                    <div id="minChange" className="stat-value">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="stat-section">
+                            <h3 className="stat-section-title">Salary Information</h3>
+                            <div className="stat-row">
+                                <div className="stat-item">
+                                    <div className="stat-label">Current Salary</div>
+                                    <div id="currentSalary" className="stat-value">-</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-label">Average Salary</div>
+                                    <div id="avgSalary" className="stat-value">-</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-label">Highest Salary</div>
+                                    <div id="maxSalary" className="stat-value">-</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-label">Lowest Salary</div>
+                                    <div id="minSalary" className="stat-value">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="view-toggle">
+                        <label>
+                            <input type="checkbox" id="viewToggle" />
+                            Show Raw Salary
+                        </label>
+                    </div>
+                    <div id="plotContainer" className="plot-container">
+                        {/* Plot will be inserted here */}
+                    </div>
                 </div>
                 
                 <div id="detailView" className="detail-view hidden">
