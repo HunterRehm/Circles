@@ -451,22 +451,37 @@ class WageVisualization {
                 }
             };
 
+            // Get viewport dimensions
+            const viewportWidth = Math.min(document.documentElement.clientWidth, window.innerWidth);
+            const isMobile = viewportWidth <= 1024;
+
+            // Calculate appropriate width and height
+            let plotWidth, plotHeight;
+            if (isMobile) {
+                // For mobile, make plot fit within viewport with padding
+                plotWidth = viewportWidth - 40;  // 20px padding on each side
+                plotHeight = Math.min(400, plotWidth * 0.75);  // Keep aspect ratio
+            } else {
+                plotWidth = 700;
+                plotHeight = 400;
+            }
+
             const layout = {
-                height: 400,
-                width: 700,
-                autosize: false,
+                height: plotHeight,
+                width: plotWidth,
+                autosize: true,  // Enable autosize
                 margin: {
-                    l: showRawSalary ? 100 : 80,    // Increase left margin for salary numbers
-                    r: 30,
-                    t: 50,
-                    b: 60
+                    l: showRawSalary ? (isMobile ? 60 : 100) : (isMobile ? 50 : 80),  // Smaller margins on mobile
+                    r: isMobile ? 20 : 30,
+                    t: isMobile ? 40 : 50,
+                    b: isMobile ? 50 : 60
                 },
                 title: {
                     text: occupation,
                     x: 0.5,
                     y: 0.95,
                     font: { 
-                        size: 18,
+                        size: isMobile ? 14 : 18,  // Smaller font on mobile
                         weight: 500
                     }
                 },
@@ -477,11 +492,11 @@ class WageVisualization {
                     range: [2017, 2023],
                     gridcolor: 'rgba(128,128,128,0.1)',
                     linecolor: 'rgba(128,128,128,0.3)',
-                    tickfont: { size: 14 },
+                    tickfont: { size: isMobile ? 12 : 14 },  // Smaller ticks on mobile
                     title: {
                         text: 'Year',
-                        font: { size: 16 },
-                        standoff: 15  // Add space between axis and title
+                        font: { size: isMobile ? 12 : 16 },
+                        standoff: isMobile ? 10 : 15
                     }
                 },
                 yaxis: {
@@ -493,13 +508,13 @@ class WageVisualization {
                     ticksuffix: showRawSalary ? '' : '%',
                     gridcolor: 'rgba(128,128,128,0.1)',
                     linecolor: 'rgba(128,128,128,0.3)',
-                    tickfont: { size: 14 },
+                    tickfont: { size: isMobile ? 12 : 14 },  // Smaller ticks on mobile
                     title: {
                         text: showRawSalary ? 'Annual Salary' : '% Change from 2017',
-                        font: { size: 16 },
-                        standoff: showRawSalary ? 25 : 15  // Increase standoff for salary view
+                        font: { size: isMobile ? 12 : 16 },
+                        standoff: showRawSalary ? (isMobile ? 15 : 25) : (isMobile ? 10 : 15)
                     },
-                    automargin: true  // Add this to help with margin calculations
+                    automargin: true
                 }
             };
 
@@ -727,6 +742,18 @@ class WageVisualization {
             const occupationData = this.data.filter(d => d.OCC_TITLE === occupation);
             const isInflationAdjusted = document.getElementById('inflationToggle').checked;
             const baseWage = occupationData.find(d => d.YEAR === 2017).A_MEAN;
+            const latestData = occupationData.sort((a, b) => b.YEAR - a.YEAR)[0];
+            
+            // Calculate total change with inflation adjustment if needed
+            let totalChange;
+            if (isInflationAdjusted) {
+                const startWage = baseWage;
+                const endWage = latestData.A_MEAN;
+                const endInflationFactor = this.inflationData[latestData.YEAR];
+                totalChange = ((endWage / endInflationFactor - startWage) / startWage) * 100;
+            } else {
+                totalChange = ((latestData.A_MEAN - baseWage) / baseWage) * 100;
+            }
             
             // Calculate year-over-year changes
             const changes = [];
@@ -748,8 +775,7 @@ class WageVisualization {
                 previousWage = d.A_MEAN;
             });
 
-            // Calculate statistics
-            const totalChange = ((occupationData[occupationData.length - 1].A_MEAN - baseWage) / baseWage) * 100;
+            // Calculate other statistics
             const avgChange = changes.reduce((a, b) => a + b, 0) / changes.length;
             const maxChange = Math.max(...changes);
             const minChange = Math.min(...changes);
