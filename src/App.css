@@ -269,6 +269,18 @@ h1 {
 }
 
 @media (max-width: 1024px) {
+    .menu-toggle {
+        display: block;  /* Show menu button on mobile */
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 2001;
+        padding: 10px 15px;
+        font-size: 20px;
+        border: none;
+        cursor: pointer;
+    }
+
     .sidebar {
         transform: translateX(-100%);
         width: 100%;
