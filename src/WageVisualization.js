@@ -451,15 +451,16 @@ class WageVisualization {
                 }
             };
 
+            const isMobile = window.innerWidth <= 1024;
             const layout = {
-                height: 400,
-                width: 700,
-                autosize: false,
+                height: isMobile ? 300 : 400,  // Reduced height for mobile
+                width: isMobile ? window.innerWidth - 40 : 700,  // Adjust width for mobile
+                autosize: true,  // Changed to true
                 margin: {
-                    l: showRawSalary ? 100 : 80,    // Increase left margin for salary numbers
-                    r: 30,
-                    t: 50,
-                    b: 60
+                    l: showRawSalary ? (isMobile ? 60 : 100) : (isMobile ? 50 : 80),
+                    r: isMobile ? 20 : 30,
+                    t: isMobile ? 40 : 50,
+                    b: isMobile ? 40 : 60
                 },
                 title: {
                     text: occupation,
@@ -724,6 +725,12 @@ class WageVisualization {
 
     updateStats(occupation) {
         try {
+            // Update occupation title
+            const titleEl = document.getElementById('selectedOccupation');
+            if (titleEl) {
+                titleEl.textContent = occupation;
+            }
+
             const occupationData = this.data.filter(d => d.OCC_TITLE === occupation);
             const isInflationAdjusted = document.getElementById('inflationToggle').checked;
             const baseWage = occupationData.find(d => d.YEAR === 2017).A_MEAN;

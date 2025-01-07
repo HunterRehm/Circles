@@ -71,6 +71,7 @@ function App() {
             <div className="main-content">
                 <div id="gridView" className="grid-container">
                     <div id="statsContainer" className="stats-container">
+                        <h2 id="selectedOccupation" className="occupation-title">Select an Occupation</h2>
                         <div className="stat-section">
                             <h3 className="stat-section-title">Percentage Changes</h3>
                             <div className="stat-row">

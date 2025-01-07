@@ -422,6 +422,36 @@ h1 {
         background: linear-gradient(to right, transparent, #fff);
         pointer-events: none;
     }
+
+    .occupation-title {
+        font-size: 16px;
+        margin: 0 0 15px 0;
+        padding: 0 0 10px 0;
+    }
+
+    .grid-container {
+        padding: 10px;
+        margin: 0;
+        width: 100%;
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
+    .plot-container {
+        padding: 10px;
+        margin: 10px 0;
+        height: auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    /* Ensure plot fits within container */
+    .js-plotly-plot {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 }
 
 /* Search section styles */
@@ -528,4 +558,13 @@ h1 {
 .view-toggle input[type="checkbox"] {
     margin: 0;
     cursor: pointer;
+}
+
+.occupation-title {
+    text-align: center;
+    color: #1f77b4;
+    font-size: 18px;
+    margin: 0 0 20px 0;
+    padding: 0 0 15px 0;
+    border-bottom: 1px solid #eee;
 }
